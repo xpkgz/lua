@@ -17,11 +17,22 @@ local function adjustVelocity()
     end
 end
 
--- Resets the player's hip height to the default value
-local function resetHipHeight()
+-- Resets the player's hip height to the default value and aligns them with the ground
+local function resetPlayerPosition()
     local player = game.Players.LocalPlayer
-    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-        player.Character.Humanoid.HipHeight = 0 -- Default hip height
+    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
+        local rootPart = player.Character.HumanoidRootPart
+        local humanoid = player.Character.Humanoid
+
+        humanoid.HipHeight = 0 -- Default hip height
+
+        -- Align the player with the ground
+        local ray = Ray.new(rootPart.Position, Vector3.new(0, -500, 0)) -- Raycast downward
+        local hit, position = workspace:FindPartOnRay(ray, player.Character)
+
+        if hit then
+            rootPart.CFrame = CFrame.new(position + Vector3.new(0, humanoid.HipHeight, 0)) -- Place above ground
+        end
     end
 end
 
@@ -37,7 +48,7 @@ local function onInputBegan(input, gameProcessed)
                 task.wait(0.1) -- Slight delay for performance optimization
             end
         else
-            resetHipHeight()
+            resetPlayerPosition()
         end
     end
 end

@@ -17,7 +17,7 @@ local function adjustVelocity()
     end
 end
 
--- Resets the player's hip height to the default value and aligns them with the ground
+-- Resets the player's hip height to the default value and ensures they are above ground
 local function resetPlayerPosition()
     local player = game.Players.LocalPlayer
     if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
@@ -31,7 +31,8 @@ local function resetPlayerPosition()
         local hit, position = workspace:FindPartOnRay(ray, player.Character)
 
         if hit then
-            rootPart.CFrame = CFrame.new(position + Vector3.new(0, humanoid.HipHeight, 0)) -- Place above ground
+            rootPart.CFrame = CFrame.new(position + Vector3.new(0, 3, 0)) -- Place slightly above ground to prevent clipping
+            rootPart.Velocity = Vector3.new(0, 0, 0) -- Stop any residual movement
         end
     end
 end

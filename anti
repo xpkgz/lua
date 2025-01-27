@@ -1,0 +1,46 @@
+-- Configuration Variables
+local Toggled = false -- Starts as false for better control
+local KeyCode = Enum.KeyCode.Z -- Toggle key
+local hipHeight = 2.80 -- Adjust hip height
+local velocityValue = -35 -- Y-axis velocity to shoot ground
+
+-- Adjusts the player's velocity and hip height
+local function adjustVelocity()
+    local player = game.Players.LocalPlayer
+    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
+        local rootPart = player.Character.HumanoidRootPart
+        local humanoid = player.Character.Humanoid
+
+        -- Apply velocity and hip height
+        rootPart.Velocity = Vector3.new(rootPart.Velocity.X, velocityValue, rootPart.Velocity.Z)
+        humanoid.HipHeight = hipHeight
+    end
+end
+
+-- Resets the player's hip height to the default value
+local function resetHipHeight()
+    local player = game.Players.LocalPlayer
+    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.HipHeight = 0 -- Default hip height
+    end
+end
+
+-- Toggles the antilock functionality
+local function onInputBegan(input, gameProcessed)
+    if gameProcessed then return end -- Ignore inputs if the game is processing them
+    if input.KeyCode == KeyCode and not game:GetService('UserInputService'):GetFocusedTextBox() then
+        Toggled = not Toggled
+
+        if Toggled then
+            while Toggled do
+                adjustVelocity()
+                task.wait(0.1) -- Slight delay for performance optimization
+            end
+        else
+            resetHipHeight()
+        end
+    end
+end
+
+-- Connect the InputBegan event
+game:GetService('UserInputService').InputBegan:Connect(onInputBegan)

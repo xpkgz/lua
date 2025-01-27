@@ -1,6 +1,6 @@
 -- Configuration Variables
 local Toggled = false -- Starts as false for better control
-local KeyCode = Enum.KeyCode.V -- Toggle key
+local KeyCode = Enum.KeyCode.Z -- Toggle key
 local hipHeight = 2.80 -- Adjust hip height
 local velocityValue = -35 -- Y-axis velocity to shoot ground
 
@@ -14,6 +14,12 @@ local function adjustVelocity()
         -- Apply velocity and hip height
         rootPart.Velocity = Vector3.new(rootPart.Velocity.X, velocityValue, rootPart.Velocity.Z)
         humanoid.HipHeight = hipHeight
+
+        -- Allow jumping while active
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+        if humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
     end
 end
 
@@ -31,11 +37,11 @@ local function resetPlayerPosition()
         local hit, position = workspace:FindPartOnRay(ray, player.Character)
 
         if hit then
-            rootPart.CFrame = CFrame.new(position + Vector3.new(0, 5, 0)) -- Place slightly above ground
+            rootPart.CFrame = CFrame.new(position + Vector3.new(0, 3, 0)) -- Place slightly above ground
             rootPart.Velocity = Vector3.zero -- Stop any movement to prevent sliding
         else
             -- Fallback to a small upward nudge if no ground is detected
-            rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 5, 0)
+            rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 3, 0)
         end
     end
 end

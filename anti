@@ -1,6 +1,6 @@
 -- Configuration Variables
 local Toggled = false -- Starts as false for better control
-local KeyCode = Enum.KeyCode.Z -- Toggle key
+local KeyCode = Enum.KeyCode.V -- Toggle key
 local hipHeight = 2.80 -- Adjust hip height
 local velocityValue = -35 -- Y-axis velocity to shoot ground
 
@@ -17,22 +17,25 @@ local function adjustVelocity()
     end
 end
 
--- Resets the player's hip height to the default value and ensures they are above ground
+-- Resets the player's hip height and corrects their position to ensure they are above ground
 local function resetPlayerPosition()
     local player = game.Players.LocalPlayer
     if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
         local rootPart = player.Character.HumanoidRootPart
         local humanoid = player.Character.Humanoid
 
-        humanoid.HipHeight = 0 -- Default hip height
+        humanoid.HipHeight = 0 -- Reset hip height
 
         -- Align the player with the ground
         local ray = Ray.new(rootPart.Position, Vector3.new(0, -500, 0)) -- Raycast downward
         local hit, position = workspace:FindPartOnRay(ray, player.Character)
 
         if hit then
-            rootPart.CFrame = CFrame.new(position + Vector3.new(0, 3, 0)) -- Place slightly above ground to prevent clipping
-            rootPart.Velocity = Vector3.new(0, 0, 0) -- Stop any residual movement
+            rootPart.CFrame = CFrame.new(position + Vector3.new(0, 5, 0)) -- Place slightly above ground
+            rootPart.Velocity = Vector3.zero -- Stop any movement to prevent sliding
+        else
+            -- Fallback to a small upward nudge if no ground is detected
+            rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 5, 0)
         end
     end
 end

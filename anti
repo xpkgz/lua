@@ -1,67 +1,28 @@
--- Configuration Variables
-local Toggled = false -- Starts as false for better control
-local KeyCode = Enum.KeyCode.Z -- Toggle key
-local hipHeight = 2.80 -- Adjust hip height
-local velocityValue = -35 -- Y-axis velocity to shoot ground
+local Toggled = true
+local KeyCode = Enum.KeyCode.V
+local hip = 2.80
+local val = -35
 
--- Adjusts the player's velocity and hip height
 local function adjustVelocity()
     local player = game.Players.LocalPlayer
-    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
-        local rootPart = player.Character.HumanoidRootPart
-        local humanoid = player.Character.Humanoid
-
-        -- Apply velocity and hip height
-        rootPart.Velocity = Vector3.new(rootPart.Velocity.X, velocityValue, rootPart.Velocity.Z)
-        humanoid.HipHeight = hipHeight
-
-        -- Allow jumping while active
-        humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
-        if humanoid:GetState() == Enum.HumanoidStateType.Freefall then
-            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end
+    local rootPart = player.Character.HumanoidRootPart
+    local oldVelocity = rootPart.Velocity
+    rootPart.Velocity = Vector3.new(oldVelocity.X, val, oldVelocity.Z)
+    player.Character.Humanoid.HipHeight = hip
 end
 
--- Resets the player's hip height and corrects their position to ensure they are above ground
-local function resetPlayerPosition()
-    local player = game.Players.LocalPlayer
-    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
-        local rootPart = player.Character.HumanoidRootPart
-        local humanoid = player.Character.Humanoid
-
-        humanoid.HipHeight = 0 -- Reset hip height
-
-        -- Align the player with the ground
-        local ray = Ray.new(rootPart.Position, Vector3.new(0, -500, 0)) -- Raycast downward
-        local hit, position = workspace:FindPartOnRay(ray, player.Character)
-
-        if hit then
-            rootPart.CFrame = CFrame.new(position + Vector3.new(0, 3, 0)) -- Place slightly above ground
-            rootPart.Velocity = Vector3.zero -- Stop any movement to prevent sliding
-        else
-            -- Fallback to a small upward nudge if no ground is detected
-            rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 3, 0)
-        end
-    end
-end
-
--- Toggles the antilock functionality
-local function onInputBegan(input, gameProcessed)
-    if gameProcessed then return end -- Ignore inputs if the game is processing them
+local function onInputBegan(input)
     if input.KeyCode == KeyCode and not game:GetService('UserInputService'):GetFocusedTextBox() then
         Toggled = not Toggled
-
         if Toggled then
             while Toggled do
                 adjustVelocity()
-                task.wait(0.1) -- Slight delay for performance optimization
+                task.wait()
             end
         else
-            resetPlayerPosition()
+            game.Players.LocalPlayer.Character.Humanoid.HipHeight = hip
         end
     end
 end
 
--- Connect the InputBegan event
 game:GetService('UserInputService').InputBegan:Connect(onInputBegan)
